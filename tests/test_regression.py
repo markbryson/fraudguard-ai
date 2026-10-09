@@ -2,6 +2,8 @@
 
 import io
 import json
+import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -67,6 +69,14 @@ def test_frozen_model_configuration() -> None:
     assert SELECTED_MODEL_NAME == "Random Forest"
     assert CLASSIFICATION_THRESHOLD == 0.40
     assert FEATURE_COLUMNS == ["Time", *[f"V{i}" for i in range(1, 29)], "Amount"]
+
+
+def test_app_bootstrap_imports_src_from_repository_root() -> None:
+    expected_root = Path(app_main.__file__).resolve().parents[1]
+
+    assert app_main.PROJECT_ROOT == expected_root
+    assert str(expected_root) in sys.path
+    assert app_main.MODEL_ARTIFACT_PATH == expected_root / "models" / "random_forest.joblib"
     assert len(FEATURE_COLUMNS) == 30
 
 

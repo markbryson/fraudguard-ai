@@ -7,6 +7,7 @@ prediction, evaluation, and SHAP logic will be added in later iterations.
 import csv
 import hashlib
 import json
+import sys
 from collections import Counter
 from numbers import Integral, Real
 from pathlib import Path
@@ -20,27 +21,31 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import NotFittedError
 from sklearn.utils.validation import check_is_fitted
 
-try:
-    from src.models.final_model_config import (
-        CLASSIFICATION_THRESHOLD,
-        FEATURE_COLUMNS,
-        MODEL_ARTIFACT_PATH,
-        SELECTED_MODEL_NAME,
-    )
-except ImportError:
-    from models.final_model_config import (
-        CLASSIFICATION_THRESHOLD,
-        FEATURE_COLUMNS,
-        MODEL_ARTIFACT_PATH,
-        SELECTED_MODEL_NAME,
-    )
+
+def ensure_project_root_on_import_path() -> Path:
+    """Make the repository root importable when launched from any directory."""
+    project_root = Path(__file__).resolve().parents[1]
+    project_root_string = str(project_root)
+    if project_root_string not in sys.path:
+        sys.path.insert(0, project_root_string)
+    return project_root
+
+
+PROJECT_ROOT = ensure_project_root_on_import_path()
+
+from src.models.final_model_config import (  # noqa: E402
+    CLASSIFICATION_THRESHOLD,
+    FEATURE_COLUMNS,
+    MODEL_ARTIFACT_PATH,
+    SELECTED_MODEL_NAME,
+)
 
 
 PROJECT_NAME = "FraudGuard AI"
 PROJECT_SUBTITLE = "Explainable machine learning for financial transaction fraud detection"
 SELECTED_MODEL = SELECTED_MODEL_NAME
 FROZEN_THRESHOLD = CLASSIFICATION_THRESHOLD
-METRICS_PATH = Path(__file__).resolve().parents[1] / "reports" / "final_model_metrics.json"
+METRICS_PATH = PROJECT_ROOT / "reports" / "final_model_metrics.json"
 MAX_BATCH_ROWS = 100_000
 MAX_BATCH_FILE_BYTES = 10 * 1024 * 1024
 MAX_BATCH_COLUMNS = 100
